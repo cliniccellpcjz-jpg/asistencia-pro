@@ -1,144 +1,163 @@
+/* ==========================================
+   VARIABLES DE DISEÑO CORPORATIVO (UI PRO)
+   ========================================== */
 :root {
   --primary: #4F46E5;
   --primary-hover: #4338CA;
   --bg-color: #F3F4F6;
   --card-bg: #FFFFFF;
   --text-main: #1F2937;
+  --text-muted: #6B7280;
 }
 
-body{
-  font-family:'Poppins',sans-serif;
-  background-color:var(--bg-color);
-  margin:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-color);
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.app-container{
-  background:var(--card-bg);
-  width:100%;
-  max-width:420px;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+/* Contenedor Adaptativo Móvil de Alta Fidelidad */
+.app-container {
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  position: relative;
 }
 
-@media (min-width:480px){
-  .app-container{
-    min-height:auto;
-    border-radius:24px;
-    margin:20px;
+@media (min-width: 480px) {
+  .app-container {
+    min-height: 85vh;
+    height: 780px;
+    border-radius: 28px;
+    margin: 20px;
+    overflow-y: auto;
+  }
+  .tab-bar {
+    position: absolute !important;
+    border-bottom-left-radius: 28px;
+    border-bottom-right-radius: 28px;
   }
 }
 
-.header{
-  background:linear-gradient(
-    135deg,
-    var(--primary),
-    #818CF8
-  );
-
-  padding:30px 20px;
-  text-align:center;
-  color:white;
-
-  border-bottom-left-radius:24px;
-  border-bottom-right-radius:24px;
+/* Encabezados con Gradiente Dinámico */
+.header {
+  background: linear-gradient(135deg, var(--primary), #818CF8);
+  padding: 30px 20px;
+  text-align: center;
+  color: white;
+  border-bottom-left-radius: 24px;
+  border-bottom-right-radius: 24px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
 }
 
-.header h1{
-  margin:0;
-  font-size:24px;
+.header h1 { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -0.5px; }
+.header p { margin: 5px 0 0 0; font-size: 13px; opacity: 0.9; }
+
+.content {
+  padding: 20px;
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  overflow-y: auto;
+  margin-bottom: 10px;
 }
 
-.header p{
-  margin:5px 0 0 0;
-  font-size:14px;
+/* Botones con Micro-animaciones Hápticas */
+.btn-action {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  width: 100%;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  transition: all 0.2s ease;
 }
 
-.content{
-  padding:30px 20px;
-  text-align:center;
-  flex-grow:1;
+.btn-action:active { transform: scale(0.97); background-color: var(--primary-hover); }
+.btn-secondary { background-color: #E5E7EB; color: #4B5563; box-shadow: none; }
+.btn-secondary:active { background-color: #D1D5DB; }
 
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:15px;
+/* Contenedor del Escáner Hardware */
+#lector-wrapper { width: 100%; display: none; animation: slideUp 0.3s ease; }
+#lector { width: 100%; border-radius: 18px; overflow: hidden; border: 4px solid #E5E7EB; background: #000; margin-bottom: 12px; }
+
+/* Contenedor de Formulario Manual */
+#manual-wrapper {
+  display: none; width: 100%; background: #F9FAFB; padding: 20px; 
+  border-radius: 18px; border: 1px solid #E5E7EB; text-align: left; animation: slideUp 0.3s ease;
 }
-
-.btn-action{
-  background-color:var(--primary);
-  color:white;
-  border:none;
-  border-radius:16px;
-
-  padding:18px 24px;
-
-  font-size:16px;
-  font-weight:600;
-  cursor:pointer;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  gap:10px;
+#manual-wrapper h3 { margin: 0 0 15px 0; font-size: 16px; color: var(--text-main); }
+.form-group { margin-bottom: 15px; width: 100%; }
+.form-group label { font-size: 12px; font-weight: 600; color: #4B5563; margin-bottom: 6px; display: block; }
+.form-control {
+  width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid #D1D5DB; 
+  box-sizing: border-box; font-family: inherit; font-size: 16px; outline: none; transition: border 0.2s;
 }
+.form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
 
-.btn-secondary{
-  background:#E5E7EB;
-  color:#4B5563;
-}
+/* Badges e Insignias Estatales */
+.badge { display: none; width: 100%; padding: 14px; border-radius: 12px; font-size: 13px; font-weight: 600; box-sizing: border-box; animation: fadeIn 0.2s ease; }
+.processing { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+.success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+.error { background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; }
 
-#lector-wrapper{
-  display:none;
-}
+/* Multi-Vistas de Contenido */
+.tab-content { display: none; flex-direction: column; min-height: calc(100vh - 65px); width: 100%; }
+.tab-content.active { display: flex; animation: fadeIn 0.3s ease; }
 
-#lector{
-  width:100%;
-  border-radius:16px;
-  overflow:hidden;
+/* Barra de Navegación Inferior Móvil (Tab Bar) */
+.tab-bar {
+  display: flex; background: #FFFFFF; border-top: 1px solid #E5E7EB; 
+  position: sticky; bottom: 0; width: 100%; height: 65px; justify-content: space-around; align-items: center; z-index: 100;
 }
+.tab-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #9CA3AF; transition: all 0.2s; flex-grow: 1; padding: 8px 0; }
+.tab-item.active { color: var(--primary); font-weight: 600; }
+.tab-icon { font-size: 18px; margin-bottom: 2px; }
+.tab-text { font-size: 11px; }
 
-#manual-wrapper{
-  display:none;
-  background:#F9FAFB;
-  padding:20px;
-  border-radius:16px;
-  text-align:left;
-}
+/* Dashboard de Métricas */
+.metricas-container { display: flex; gap: 8px; width: 100%; margin-top: 10px; box-sizing: border-box; }
+.card-metrica { flex: 1; padding: 12px 6px; border-radius: 14px; text-align: center; color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+.card-metrica span { font-size: 20px; font-weight: 700; display: block; }
+.card-metrica p { font-size: 11px; margin: 0; opacity: 0.9; }
+.card-metrica.total { background: var(--primary); }
+.card-metrica.presentes { background: #10B981; }
+.card-metrica.ausentes { background: #EF4444; }
 
-.form-group{
-  margin-bottom:15px;
+/* Fila de Estudiante en Reportes */
+.item-alumno {
+  display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; 
+  background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 12px; margin-bottom: 8px; box-sizing: border-box;
 }
+.item-alumno .info { text-align: left; }
+.item-alumno .info h4 { margin: 0; font-size: 14px; color: var(--text-main); font-weight: 600; }
+.item-alumno .info p { margin: 2px 0 0 0; font-size: 11px; color: var(--text-muted); }
+.status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.status-badge.pres { background: #D1FAE5; color: #065F46; }
+.status-badge.aus { background: #FEE2E2; color: #991B1B; }
 
-.form-control{
-  width:100%;
-  padding:12px;
-  border-radius:8px;
-  border:1px solid #CFCFCF;
-  box-sizing:border-box;
-}
-
-.badge{
-  display:none;
-  margin-top:10px;
-  padding:15px;
-  border-radius:12px;
-}
-
-.processing{
-  background:#FEF3C7;
-}
-
-.success{
-  background:#D1FAE5;
-}
-
-.error{
-  background:#FEE2E2;
-}
+/* Animaciones de Entrada */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
