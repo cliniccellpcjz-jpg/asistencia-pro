@@ -2,7 +2,7 @@
 // CONFIGURACIÓN DE NÚCLEO - INTERFAZ PRO
 // ==========================================
 let escaner;
-// Tu URL exacta de la Web App de Google Apps Script (Cerebro Central)
+// URL exacta de la Web App de Google Apps Script (Cerebro Central)
 const urlGoogle = "https://script.google.com/macros/s/AKfycbxHw7Yvwc2Prl5BuiNoK-QyT0OEFkTtHN3hCceCpVpMjo7j97IsmczJ4zx5LSVoTzTi4Q/exec";
 
 // ------------------------------------------
@@ -57,9 +57,9 @@ function cargarReporteServidor() {
     })
     .then(data => {
       // Renderizar los marcadores de las tarjetas de métricas superiores
-      document.getElementById('num-total').innerText = data.total;
-      document.getElementById('num-presentes').innerText = data.presentes;
-      document.getElementById('num-ausentes').innerText = data.ausentes;
+      document.getElementById('num-total').innerText = data.total || 0;
+      document.getElementById('num-presentes').innerText = data.presentes || 0;
+      document.getElementById('num-ausentes').innerText = data.ausentes || 0;
 
       // Validar si existen alumnos en la respuesta de la nómina
       if (!data.estudiantes || data.estudiantes.length === 0) {
@@ -95,11 +95,13 @@ function cargarReporteServidor() {
 // 3. CAPTURA DE ASISTENCIA VÍA ESCÁNER QR
 // ------------------------------------------
 function alLeerQR(texto) {
-  escaner.pause(true);
+  if (escaner) {
+    escaner.pause(true);
+  }
   mostrarMensaje("⏳ Procesando código QR en la base de datos...", "processing");
 
   // Envío del ID escaneado al script central
-  fetch(`${urlGoogle}?qr=${encodeURIComponent(texto)}`)
+  fetch(`${urlGoogle}?qr=${encodeURIComponent(texto.trim())}`)
     .then(response => response.json())
     .then(data => {
       if (data.status === "SUCCESS") {
@@ -111,13 +113,19 @@ function alLeerQR(texto) {
       // Mostrar la alerta por 3 segundos y reactivar el motor del escáner
       setTimeout(() => {
         document.getElementById("resultado").style.display = "none";
-        escaner.resume();
+        if (escaner && escaner.isScanning) {
+          escaner.resume();
+        }
       }, 3000);
     })
     .catch(err => {
       console.error("Error en lectura QR: ", err);
       mostrarMensaje("❌ Error de comunicación con el servidor.", "error");
-      setTimeout(() => escaner.resume(), 3000);
+      setTimeout(() => {
+        if (escaner && escaner.isScanning) {
+          escaner.resume();
+        }
+      }, 3000);
     });
 }
 
@@ -127,13 +135,13 @@ function alLeerQR(texto) {
 function enviarRegistroManual() {
   let cedula = document.getElementById("cedula-manual").value;
 
-  if (!cedula) {
+  if (!cedula || cedula.trim() === "") {
     mostrarMensaje("Por favor, ingrese un número de cédula válido.", "error");
     return;
   }
 
   mostrarMensaje("⏳ Procesando registro manual de asistencia...", "processing");
-  // Formatear la cadena para que coincida con la nomenclatura de la base de datos (ALU- + Cédula)
+  // Formatear la cadena para que coincida con la nomenclatura de la base de datos
   let codigoFormateado = "ALU-" + cedula.trim();
 
   fetch(`${urlGoogle}?qr=${encodeURIComponent(codigoFormateado)}`)
@@ -144,7 +152,6 @@ function enviarRegistroManual() {
         // Cerrar el formulario y limpiar el campo de texto tras 2 segundos de éxito
         setTimeout(() => {
           ocultarFormularioManual();
-          document.getElementById("cedula-manual").value = "";
         }, 2000);
       } else {
         mostrarMensaje("❌ " + data.mensaje, "error");
@@ -189,32 +196,42 @@ function iniciarCamara() {
             alLeerQR
           ).then(() => {
             document.getElementById("resultado").style.display = "none";
+          }).catch(err => {
+            console.error("Fallo definitivo de inicialización de cámara: ", err);
+            mostrarMensaje("❌ No se pudo activar ningún flujo de video disponible.", "error");
+            detenerCamara();
           });
         });
       } else {
         mostrarMensaje("❌ No se detectó ninguna cámara en este dispositivo.", "error");
+        detenerCamara();
       }
     })
     .catch(err => {
       console.error("Error al obtener cámaras: ", err);
       mostrarMensaje("❌ Error físico de hardware o permisos denegados.", "error");
+      detenerCamara();
     });
 }
 
 function detenerCamara() {
   if (escaner && escaner.isScanning) {
     escaner.stop().then(() => {
-      document.getElementById("lector-wrapper").style.display = "none";
-      document.getElementById("btn-iniciar").style.display = "flex";
-      document.getElementById("btn-abrir-manual").style.display = "flex";
-      document.getElementById("resultado").style.display = "none";
+      ejecutarReseteoUI();
+    }).catch(err => {
+      console.error("Error al detener el escáner: ", err);
+      ejecutarReseteoUI();
     });
   } else {
-    document.getElementById("lector-wrapper").style.display = "none";
-    document.getElementById("btn-iniciar").style.display = "flex";
-    document.getElementById("btn-abrir-manual").style.display = "flex";
-    document.getElementById("resultado").style.display = "none";
+    ejecutarReseteoUI();
   }
+}
+
+function ejecutarReseteoUI() {
+  document.getElementById("lector-wrapper").style.display = "none";
+  document.getElementById("btn-iniciar").style.display = "flex";
+  document.getElementById("btn-abrir-manual").style.display = "flex";
+  document.getElementById("resultado").style.display = "none";
 }
 
 // ------------------------------------------
