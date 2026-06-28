@@ -1,0 +1,144 @@
+:root {
+  --primary: #4F46E5;
+  --primary-hover: #4338CA;
+  --bg-color: #F3F4F6;
+  --card-bg: #FFFFFF;
+  --text-main: #1F2937;
+}
+
+body{
+  font-family:'Poppins',sans-serif;
+  background-color:var(--bg-color);
+  margin:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.app-container{
+  background:var(--card-bg);
+  width:100%;
+  max-width:420px;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+@media (min-width:480px){
+  .app-container{
+    min-height:auto;
+    border-radius:24px;
+    margin:20px;
+  }
+}
+
+.header{
+  background:linear-gradient(
+    135deg,
+    var(--primary),
+    #818CF8
+  );
+
+  padding:30px 20px;
+  text-align:center;
+  color:white;
+
+  border-bottom-left-radius:24px;
+  border-bottom-right-radius:24px;
+}
+
+.header h1{
+  margin:0;
+  font-size:24px;
+}
+
+.header p{
+  margin:5px 0 0 0;
+  font-size:14px;
+}
+
+.content{
+  padding:30px 20px;
+  text-align:center;
+  flex-grow:1;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:15px;
+}
+
+.btn-action{
+  background-color:var(--primary);
+  color:white;
+  border:none;
+  border-radius:16px;
+
+  padding:18px 24px;
+
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  gap:10px;
+}
+
+.btn-secondary{
+  background:#E5E7EB;
+  color:#4B5563;
+}
+
+#lector-wrapper{
+  display:none;
+}
+
+#lector{
+  width:100%;
+  border-radius:16px;
+  overflow:hidden;
+}
+
+#manual-wrapper{
+  display:none;
+  background:#F9FAFB;
+  padding:20px;
+  border-radius:16px;
+  text-align:left;
+}
+
+.form-group{
+  margin-bottom:15px;
+}
+
+.form-control{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #CFCFCF;
+  box-sizing:border-box;
+}
+
+.badge{
+  display:none;
+  margin-top:10px;
+  padding:15px;
+  border-radius:12px;
+}
+
+.processing{
+  background:#FEF3C7;
+}
+
+.success{
+  background:#D1FAE5;
+}
+
+.error{
+  background:#FEE2E2;
+}
