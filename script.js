@@ -2,26 +2,21 @@
 // CONFIGURACIÓN DE NÚCLEO - INTERFAZ PRO
 // ==========================================
 let escaner;
-// URL exacta de la Web App de Google Apps Script (Cerebro Central)
 const urlGoogle = "https://script.google.com/macros/s/AKfycbxHw7Yvwc2Prl5BuiNoK-QyT0OEFkTtHN3hCceCpVpMjo7j97IsmczJ4zx5LSVoTzTi4Q/exec";
 
 // ------------------------------------------
 // 1. SISTEMA DE RUTEO Y PESTAÑAS (TAB BAR)
 // ------------------------------------------
 function cambiarPestaña(idVista, elemento) {
-  // Limpieza de estados de hardware y formularios antes de cambiar de pantalla
   detenerCamara();
   ocultarFormularioManual();
   
-  // Remover clases activas de todas las vistas y botones del Tab Bar
   document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
   document.querySelectorAll('.tab-item').forEach(ti => ti.classList.remove('active'));
   
-  // Activar la vista y el botón seleccionado por el docente
   document.getElementById(idVista).classList.add('active');
   elemento.classList.add('active');
 
-  // Inicializar la vista de reportes con la fecha actual del sistema local
   if (idVista === 'vista-reportes') {
     const picker = document.getElementById('filtro-fecha');
     if (!picker.value) {
@@ -41,32 +36,27 @@ function cargarReporteServidor() {
   let fechaInput = document.getElementById('filtro-fecha').value;
   if (!fechaInput) return;
 
-  // Transformar fecha de formato HTML (YYYY-MM-DD) a formato Sheets (DD/MM/YYYY)
   let partes = fechaInput.split('-');
   let fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
 
   const contenedorLista = document.getElementById('lista-estudiantes-container');
   contenedorLista.innerHTML = '<p style="color: #4F46E5; font-weight:600; margin-top:20px; font-size:14px;">⏳ Consultando base de datos en tiempo real...</p>';
 
-  // Petición fetch al backend pasando la acción de reporte y la fecha
   fetch(`${urlGoogle}?accion=obtenerReporte&fecha=${encodeURIComponent(fechaFormateada)}`)
     .then(res => {
       if (!res.ok) throw new Error("Error en respuesta de red");
       return res.json();
     })
     .then(data => {
-      // Renderizar los marcadores numéricos de las tarjetas de métricas
       document.getElementById('num-total').innerText = data.total || 0;
       document.getElementById('num-presentes').innerText = data.presentes || 0;
       document.getElementById('num-ausentes').innerText = data.ausentes || 0;
 
-      // Validar si existen alumnos en la respuesta de la nómina
       if (!data.estudiantes || data.estudiantes.length === 0) {
         contenedorLista.innerHTML = '<p style="color: #6B7280; margin-top:20px; font-size:14px;">No existen alumnos registrados en la nómina global.</p>';
         return;
       }
 
-      // Construcción dinámica estructurada de la lista interactiva de estudiantes
       let htmlLista = "";
       data.estudiantes.forEach(est => {
         let claseBadge = est.estado === "PRESENTE" ? "pres" : "aus";
@@ -99,7 +89,7 @@ function alLeerQR(texto) {
   }
   mostrarMensaje("⏳ Procesando código QR en la base de datos...", "processing");
 
-  // Envío del ID sanitizado al script central de Google
+  // Enviamos el código QR limpio (Ej: ALU-1206414011) para que machee directo contra la Columna A del Excel
   fetch(`${urlGoogle}?qr=${encodeURIComponent(texto.trim())}`)
     .then(response => response.json())
     .then(data => {
@@ -109,7 +99,6 @@ function alLeerQR(texto) {
         mostrarMensaje("❌ " + data.mensaje, "error");
       }
       
-      // Mostrar feedback visual por 2.5 segundos y reactivar escáner
       setTimeout(() => {
         document.getElementById("resultado").style.display = "none";
         if (escaner && escaner.isScanning) {
@@ -140,7 +129,9 @@ function enviarRegistroManual() {
   }
 
   mostrarMensaje("⏳ Procesando registro manual de asistencia...", "processing");
-  // Formatear la cadena para que coincida con la nomenclatura de la base de datos (ALU- + Cédula)
+  
+  // 🚨 CORRECCIÓN: El registro manual ahora formatea el código como un QR (ALU- + Cédula)
+  // De esta forma, el backend recibe el mismo tipo de dato exacto sin importar si fue escaneado o escrito.
   let codigoFormateado = "ALU-" + cedula.trim();
 
   fetch(`${urlGoogle}?qr=${encodeURIComponent(codigoFormateado)}`)
@@ -148,7 +139,6 @@ function enviarRegistroManual() {
     .then(data => {
       if (data.status === "SUCCESS") {
         mostrarMensaje("✅ " + data.mensaje, "success");
-        // Cerrar el formulario y limpiar el campo de texto tras 2 segundos de éxito
         setTimeout(() => {
           ocultarFormularioManual();
         }, 2000);
@@ -178,7 +168,6 @@ function iniciarCamara() {
       if (dispositivos && dispositivos.length > 0) {
         escaner = new Html5Qrcode("lector");
         
-        // Estrategia prioritaria: Forzar la cámara trasera de los celulares ("environment")
         escaner.start(
           { facingMode: "environment" },
           { fps: 20, qrbox: { width: 260, height: 260 } },
@@ -188,7 +177,6 @@ function iniciarCamara() {
           document.getElementById("resultado").style.display = "none";
         })
         .catch(() => {
-          // Fallback: Si falla (ej. laptops sin cámara trasera), abrir primera cámara disponible
           escaner.start(
             dispositivos[0].id,
             { fps: 20, qrbox: { width: 260, height: 260 } },
