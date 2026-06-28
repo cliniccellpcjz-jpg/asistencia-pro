@@ -9,7 +9,7 @@ const urlGoogle = "https://script.google.com/macros/s/AKfycbxHw7Yvwc2Prl5BuiNoK-
 // 1. SISTEMA DE RUTEO Y PESTAÑAS (TAB BAR)
 // ------------------------------------------
 function cambiarPestaña(idVista, elemento) {
-  // Limpieza de estados activos antes de cambiar de pantalla
+  // Limpieza de estados de hardware y formularios antes de cambiar de pantalla
   detenerCamara();
   ocultarFormularioManual();
   
@@ -21,12 +21,11 @@ function cambiarPestaña(idVista, elemento) {
   document.getElementById(idVista).classList.add('active');
   elemento.classList.add('active');
 
-  // Inicializar la vista de reportes con la fecha actual del sistema
+  // Inicializar la vista de reportes con la fecha actual del sistema local
   if (idVista === 'vista-reportes') {
     const picker = document.getElementById('filtro-fecha');
     if (!picker.value) {
       const hoy = new Date();
-      // Ajustar zona horaria local para el formato YYYY-MM-DD
       const offset = hoy.getTimezoneOffset();
       const fechaLocal = new Date(hoy.getTime() - (offset * 60 * 1000));
       picker.value = fechaLocal.toISOString().split('T')[0];
@@ -56,7 +55,7 @@ function cargarReporteServidor() {
       return res.json();
     })
     .then(data => {
-      // Renderizar los marcadores de las tarjetas de métricas superiores
+      // Renderizar los marcadores numéricos de las tarjetas de métricas
       document.getElementById('num-total').innerText = data.total || 0;
       document.getElementById('num-presentes').innerText = data.presentes || 0;
       document.getElementById('num-ausentes').innerText = data.ausentes || 0;
@@ -67,7 +66,7 @@ function cargarReporteServidor() {
         return;
       }
 
-      // Construcción dinámica de la lista interactiva de estudiantes
+      // Construcción dinámica estructurada de la lista interactiva de estudiantes
       let htmlLista = "";
       data.estudiantes.forEach(est => {
         let claseBadge = est.estado === "PRESENTE" ? "pres" : "aus";
@@ -100,7 +99,7 @@ function alLeerQR(texto) {
   }
   mostrarMensaje("⏳ Procesando código QR en la base de datos...", "processing");
 
-  // Envío del ID escaneado al script central
+  // Envío del ID sanitizado al script central de Google
   fetch(`${urlGoogle}?qr=${encodeURIComponent(texto.trim())}`)
     .then(response => response.json())
     .then(data => {
@@ -110,13 +109,13 @@ function alLeerQR(texto) {
         mostrarMensaje("❌ " + data.mensaje, "error");
       }
       
-      // Mostrar la alerta por 3 segundos y reactivar el motor del escáner
+      // Mostrar feedback visual por 2.5 segundos y reactivar escáner
       setTimeout(() => {
         document.getElementById("resultado").style.display = "none";
         if (escaner && escaner.isScanning) {
           escaner.resume();
         }
-      }, 3000);
+      }, 2500);
     })
     .catch(err => {
       console.error("Error en lectura QR: ", err);
@@ -125,7 +124,7 @@ function alLeerQR(texto) {
         if (escaner && escaner.isScanning) {
           escaner.resume();
         }
-      }, 3000);
+      }, 2500);
     });
 }
 
@@ -141,7 +140,7 @@ function enviarRegistroManual() {
   }
 
   mostrarMensaje("⏳ Procesando registro manual de asistencia...", "processing");
-  // Formatear la cadena para que coincida con la nomenclatura de la base de datos
+  // Formatear la cadena para que coincida con la nomenclatura de la base de datos (ALU- + Cédula)
   let codigoFormateado = "ALU-" + cedula.trim();
 
   fetch(`${urlGoogle}?qr=${encodeURIComponent(codigoFormateado)}`)
@@ -164,7 +163,7 @@ function enviarRegistroManual() {
 }
 
 // ------------------------------------------
-// 5. INFRAESTRUCTURA DE CONTROL DE CÁMARA
+// 5. INFRAESTRUCTURA DE CONTROL DE CÁMARA Y PERMISOS
 // ------------------------------------------
 function iniciarCamara() {
   document.getElementById("btn-iniciar").style.display = "none";
@@ -179,26 +178,26 @@ function iniciarCamara() {
       if (dispositivos && dispositivos.length > 0) {
         escaner = new Html5Qrcode("lector");
         
-        // Estrategia: Intentar encender la cámara trasera por defecto
+        // Estrategia prioritaria: Forzar la cámara trasera de los celulares ("environment")
         escaner.start(
           { facingMode: "environment" },
-          { fps: 15, qrbox: { width: 250, height: 250 } },
+          { fps: 20, qrbox: { width: 260, height: 260 } },
           alLeerQR
         )
         .then(() => {
           document.getElementById("resultado").style.display = "none";
         })
         .catch(() => {
-          // Fallback: Si falla (ej. en PC sin cámara trasera), abrir la primera cámara disponible
+          // Fallback: Si falla (ej. laptops sin cámara trasera), abrir primera cámara disponible
           escaner.start(
             dispositivos[0].id,
-            { fps: 15, qrbox: { width: 250, height: 250 } },
+            { fps: 20, qrbox: { width: 260, height: 260 } },
             alLeerQR
           ).then(() => {
             document.getElementById("resultado").style.display = "none";
           }).catch(err => {
-            console.error("Fallo definitivo de inicialización de cámara: ", err);
-            mostrarMensaje("❌ No se pudo activar ningún flujo de video disponible.", "error");
+            console.error("Error definitivo de hardware: ", err);
+            mostrarMensaje("❌ Permiso denegado por el navegador. Revise el candadito.", "error");
             detenerCamara();
           });
         });
@@ -209,7 +208,7 @@ function iniciarCamara() {
     })
     .catch(err => {
       console.error("Error al obtener cámaras: ", err);
-      mostrarMensaje("❌ Error físico de hardware o permisos denegados.", "error");
+      mostrarMensaje("❌ Permiso denegado. Active la cámara en su navegador.", "error");
       detenerCamara();
     });
 }
@@ -217,17 +216,17 @@ function iniciarCamara() {
 function detenerCamara() {
   if (escaner && escaner.isScanning) {
     escaner.stop().then(() => {
-      ejecutarReseteoUI();
+      resetearUIEscaner();
     }).catch(err => {
       console.error("Error al detener el escáner: ", err);
-      ejecutarReseteoUI();
+      resetearUIEscaner();
     });
   } else {
-    ejecutarReseteoUI();
+    resetearUIEscaner();
   }
 }
 
-function ejecutarReseteoUI() {
+function resetearUIEscaner() {
   document.getElementById("lector-wrapper").style.display = "none";
   document.getElementById("btn-iniciar").style.display = "flex";
   document.getElementById("btn-abrir-manual").style.display = "flex";
@@ -251,7 +250,6 @@ function mostrarFormularioManual() {
   document.getElementById("resultado").style.display = "none";
 }
 
-// Limpiar y resetear el entorno del ingreso manual
 function ocultarFormularioManual() {
   document.getElementById("manual-wrapper").style.display = "none";
   document.getElementById("btn-iniciar").style.display = "flex";
