@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Asistencia Pro - Docentes</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+
+<body>
+
+<div class="app-container">
+
+  <div class="header">
+    <h1>🏫 Asistencia Pro</h1>
+    <p>Portal de Registro Docente</p>
+  </div>
+
+  <div class="content">
+
+    <button id="btn-iniciar" class="btn-action" onclick="iniciarCamara()">
+      <span>📷</span> Activar Escáner
+    </button>
+
+    <div id="lector-wrapper">
+      <div id="lector"></div>
+
+      <button
+        class="btn-action btn-secondary"
+        onclick="detenerCamara()">
+        Volver
+      </button>
+    </div>
+
+    <button
+      id="btn-abrir-manual"
+      class="btn-action btn-secondary"
+      onclick="mostrarFormularioManual()">
+
+      ✍️ Registro sin Carnet (Manual)
+
+    </button>
+
+    <div id="manual-wrapper">
+
+      <h3>Ingreso Manual</h3>
+
+      <div class="form-group">
+
+        <label for="cedula-manual">
+          Número de Cédula Estudiante:
+        </label>
+
+        <input
+          type="number"
+          id="cedula-manual"
+          class="form-control"
+          placeholder="Ej. 1206414011">
+
+      </div>
+
+      <button
+        class="btn-action"
+        onclick="enviarRegistroManual()">
+
+        Registrar Entrada
+
+      </button>
+
+      <button
+        class="btn-action btn-secondary"
+        onclick="ocultarFormularioManual()">
+
+        Cancelar
+
+      </button>
+
+    </div>
+
+    <div id="resultado" class="badge"></div>
+
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
