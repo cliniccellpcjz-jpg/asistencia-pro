@@ -2,92 +2,98 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Asistencia Pro - Docentes</title>
-
+  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-
   <script src="https://unpkg.com/html5-qrcode"></script>
 </head>
-
 <body>
 
 <div class="app-container">
-
-  <div class="header">
-    <h1>🏫 Asistencia Pro</h1>
-    <p>Portal de Registro Docente</p>
-  </div>
-
-  <div class="content">
-
-    <button id="btn-iniciar" class="btn-action" onclick="iniciarCamara()">
-      <span>📷</span> Activar Escáner
-    </button>
-
-    <div id="lector-wrapper">
-      <div id="lector"></div>
-
-      <button
-        class="btn-action btn-secondary"
-        onclick="detenerCamara()">
-        Volver
-      </button>
+  
+  <div id="vista-escaner" class="tab-content active">
+    <div class="header">
+      <h1>🏫 Asistencia Pro</h1>
+      <p>Portal de Registro Docente</p>
     </div>
+    
+    <div class="content">
+      <button id="btn-iniciar" class="btn-action" onclick="iniciarCamara()">
+        <span>📷</span> Activar Escáner
+      </button>
 
-    <button
-      id="btn-abrir-manual"
-      class="btn-action btn-secondary"
-      onclick="mostrarFormularioManual()">
-
-      ✍️ Registro sin Carnet (Manual)
-
-    </button>
-
-    <div id="manual-wrapper">
-
-      <h3>Ingreso Manual</h3>
-
-      <div class="form-group">
-
-        <label for="cedula-manual">
-          Número de Cédula Estudiante:
-        </label>
-
-        <input
-          type="number"
-          id="cedula-manual"
-          class="form-control"
-          placeholder="Ej. 1206414011">
-
+      <div id="lector-wrapper">
+        <div id="lector"></div>
+        <button class="btn-action btn-secondary" onclick="detenerCamara()">Volver</button>
       </div>
 
-      <button
-        class="btn-action"
-        onclick="enviarRegistroManual()">
-
-        Registrar Entrada
-
+      <button id="btn-abrir-manual" class="btn-action btn-secondary" onclick="mostrarFormularioManual()">
+        ✍️ Registro sin Carnet (Manual)
       </button>
 
-      <button
-        class="btn-action btn-secondary"
-        onclick="ocultarFormularioManual()">
-
-        Cancelar
-
-      </button>
-
+      <div id="manual-wrapper">
+        <h3>Ingreso Manual</h3>
+        <div class="form-group">
+          <label for="cedula-manual">Número de Cédula Estudiante:</label>
+          <input type="number" id="cedula-manual" class="form-control" placeholder="Ej. 1206414011" inputmode="numeric">
+        </div>
+        <button class="btn-action" onclick="enviarRegistroManual()">Registrar Entrada</button>
+        <button class="btn-action btn-secondary" onclick="ocultarFormularioManual()">Cancelar</button>
+      </div>
+      
+      <div id="resultado" class="badge"></div>
     </div>
+  </div>
 
-    <div id="resultado" class="badge"></div>
+  <div id="vista-reportes" class="tab-content">
+    <div class="header" style="background: linear-gradient(135deg, #059669, #34D399);">
+      <h1>📊 Panel de Reportes</h1>
+      <p>Asistencia Histórica del Aula</p>
+    </div>
+    
+    <div class="content" style="justify-content: flex-start; padding-top: 20px;">
+      <div class="form-group" style="text-align: left; width: 100%;">
+        <label for="filtro-fecha" style="font-weight: 600; color: #4B5563; display: block; margin-bottom: 8px;">Seleccionar Fecha:</label>
+        <input type="date" id="filtro-fecha" class="form-control" onchange="cargarReporteServidor()">
+      </div>
 
+      <div class="metricas-container">
+        <div class="card-metrica total">
+          <span id="num-total">0</span>
+          <p>Alumnos</p>
+        </div>
+        <div class="card-metrica presentes">
+          <span id="num-presentes">0</span>
+          <p>Presentes</p>
+        </div>
+        <div class="card-metrica ausentes">
+          <span id="num-ausentes">0</span>
+          <p>Ausentes</p>
+        </div>
+      </div>
+
+      <h3 style="text-align: left; margin: 25px 0 10px 0; font-size: 16px; color: #1F2937; width: 100%;">Nómina de Control</h3>
+      <div id="lista-estudiantes-container" style="width: 100%;">
+        <p style="color: #6B7280; font-style: italic; margin-top: 20px;">Seleccione una fecha para sincronizar la nómina.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="cambiarPestaña('vista-escaner', this)">
+      <span class="tab-icon">📷</span>
+      <span class="tab-text">Escáner</span>
+    </div>
+    <div class="tab-item" onclick="cambiarPestaña('vista-reportes', this)">
+      <span class="tab-icon">📋</span>
+      <span class="tab-text">Mis Reportes</span>
+    </div>
   </div>
 
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
